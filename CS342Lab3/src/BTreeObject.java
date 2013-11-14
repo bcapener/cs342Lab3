@@ -2,15 +2,15 @@
 public class BTreeObject<E> {
 	//Data Fields
 	private int freqCount;
-	private Long key;
+	private E key;
 	
 	//Constructor
-	public BTreeObject(long key){
+	public BTreeObject(E key){
 		this.key = key;
 		freqCount = 1;
 	}
 	
-	public Long getKey(){
+	public E getKey(){
 		return key;
 	}
 	
