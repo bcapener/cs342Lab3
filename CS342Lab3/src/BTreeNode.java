@@ -55,7 +55,7 @@ public class BTreeNode<E> {
 		//overwrite treeObjects with given array of objects
 		//will be used with getLeftObjects()
 		//or with getMiddleObject() when splitting the root
-		this.treeObjects = tos;
+		//this.treeObjects = tos;
 	}
 	
 	public boolean isFull(){
