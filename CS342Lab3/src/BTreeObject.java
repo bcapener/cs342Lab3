@@ -1,5 +1,5 @@
 
-public class BTreeObject<E> {
+public class BTreeObject<E extends Comparable<E>> implements Comparable<BTreeObject<E>>{
 	//Data Fields
 	private int freqCount;
 	private E key;
@@ -21,5 +21,9 @@ public class BTreeObject<E> {
 	public void incFreqCount(){
 		freqCount++;
 	}
-	
+
+	@Override
+	public int compareTo(BTreeObject<E> o) {
+		return key.compareTo(o.getKey());
+	}
 }
