@@ -46,8 +46,14 @@ public class GeneBankCreateBTree
 			{
 				cacheSize = Integer.valueOf(args[4]);
 			}
-			
 		}
+		
+		buildTree(degree, sequenceLength);
+		if (debugLevel == 1)
+		{
+			dumpText();
+		}
+		
 	}
 	
 	public static void argumentFormat()
@@ -59,5 +65,25 @@ public class GeneBankCreateBTree
 	{
 		int degreeValue = 0;
 		return degreeValue;
+	}
+	
+	public static void buildTree(int degree, int sequenceLength)
+	{
+		if (useCache == true)
+		{
+			//BTree geneBankTree = new BTree(cacheSize, degree, sequenceLength)
+		}
+		else 
+		{
+			//BTree geneBankTree = new BTree(degree, sequenceLength)
+		}
+		
+		//parse file?
+		
+	}
+	
+	public static void dumpText()
+	{
+		
 	}
 }
