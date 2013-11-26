@@ -5,24 +5,76 @@ public class BTree {
 	private int rootPointer;
 	private int numOfNodes;
 	private int maxNumOfNodes;
-	private BTreeNode<Long> currNode;
-	private BTreeNode<Long> parentNode;
+	private BTreeNode<Long> currNode = null;
+	private BTreeNode<Long> parentNode = null;
 	private int nextPointer;	//next new node goes here
 	private int maxNumOfObjs;
+	private boolean hasCache;
 	
 	//Constructor
-	BTree(int maxNumOfObjects){
+	BTree(int maxNumOfObjects, int maxNumOfNodes, boolean hasCache){
 		this.maxNumOfNodes = maxNumOfNodes;
-		
+		this.hasCache = hasCache;
+		this.maxNumOfObjs = maxNumOfObjects;
+		currNode = new BTreeNode<Long>(nextPointer, 3);
 	}
 	
-	public void add(Long key){
-		//currnode = rootnode
+	public void add(BTreeObject<Long> obj){
+		//currNode = retreiveNode(rootPointer);	//currnode = rootnode
+		//check if node is full and split
+		if(currNode.isFull()){
+			this.bTreeNodeSplit();
+		}
+		int index = currNode.findObjIndex(obj);
+		
+		if(!currNode.isEmpty()){
+			//check if equal, and inc freq. then return
+			if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
+				currNode.getObject(index).incFreqCount();
+				return;
+			}
+			
+			while(currNode.hasChildren()){
+				parentNode = currNode;
+				currNode = retreiveNode(currNode.getChildPointer(index+1));
+				index = currNode.findObjIndex(obj);
+				//check if equal, and inc freq. then return
+				if(obj.compareTo(currNode.getObject(index)) == 0){
+					currNode.getObject(index).incFreqCount();
+					return;
+				}
+			}
+		}
+		currNode.add(obj, index);
+		writeNode(currNode);
 		//find index where object should be inserted
 		//get child pointer at index+1
 		//currnode == child node
 		//repeat until no children
 		//insert in to this childless node.
+		
+	}
+	
+	private void writeNode(BTreeNode<Long> node){	//writes nodes to cache or file
+		if(hasCache){
+			
+		}
+		else{
+			
+		}
+	}
+	
+	private BTreeNode<Long> retreiveNode(int pointer){
+		if(hasCache){
+			//look for node in cache first
+			//if not found in cache
+				//look for node in file
+				//write node to cache
+		}
+		else{
+			
+		}
+		return null;
 		
 	}
 	
