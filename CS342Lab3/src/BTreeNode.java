@@ -23,7 +23,7 @@ public class BTreeNode<E extends Comparable<E>> {
 	
 	//used for reading in a node from binary file
 	public BTreeNode(int nodePointer){
-		this.bTreeNodeRead();
+		this.nodeRead(nodePointer);
 	}
 	
 	public int findObjIndex(BTreeObject<E> newTreeObj){
@@ -197,14 +197,14 @@ public class BTreeNode<E extends Comparable<E>> {
 		return treeObjects.isEmpty();
 	}
 	
-	public void bTreeNodeRead(){		//read in node from file and populate object from "nodePointer"
+	private void nodeRead(int pointer /*binary file*/){		//read in node from file and populate object from "nodePointer"
 		
 	}
-	public void bTreeNodeWrite(){		//write this object to the file at "nodePointer"
+	public void nodeWrite(/*binary file*/){		//write this object to the file at "nodePointer"
 		
 	}
 	
-	public void updateChildernsParentPointer(){
+	public void updateChildernsParentPointer(/*binary file*/){
 		//update the PPtr of all children
 		//dont read in all children to memory, just update PPtr in binary file.
 	}
