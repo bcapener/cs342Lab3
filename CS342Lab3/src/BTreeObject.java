@@ -1,16 +1,21 @@
 
-public class BTreeObject<E extends Comparable<E>> implements Comparable<BTreeObject<E>>{
+public class BTreeObject implements Comparable<BTreeObject>{
 	//Data Fields
 	private int freqCount;
-	private E key;
+	private Long key;
 	
 	//Constructor
-	public BTreeObject(E key){
+	public BTreeObject(Long key){
 		this.key = key;
 		freqCount = 1;
 	}
 	
-	public E getKey(){
+	public BTreeObject(Long key, int freqCount){
+		this.key = key;
+		this.freqCount = freqCount;
+	}
+	
+	public Long getKey(){
 		return key;
 	}
 	
@@ -23,7 +28,7 @@ public class BTreeObject<E extends Comparable<E>> implements Comparable<BTreeObj
 	}
 
 	@Override
-	public int compareTo(BTreeObject<E> o) {
+	public int compareTo(BTreeObject o) {
 		return key.compareTo(o.getKey());
 	}
 	

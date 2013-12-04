@@ -1,29 +1,47 @@
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 
 public class BTree {
 	private int rootPointer;
 	private int numOfNodes;
-	//private int maxNumOfNodes;
-	private BTreeNode<Long> currNode = null;
-	private BTreeNode<Long> parentNode = null;
+	private BTreeNode currNode = null;
+	private BTreeNode parentNode = null;
 	private int nextPointer;	//next new node goes here
 	private int maxNumOfObjs;
+	//private cache treeCache;
 	private boolean hasCache;
-	private int nodeSize;	//size of a node in bytes
+	private int nodeSize = 0;	//size of a node in bytes
+	private File binFile;
+	private int sequenceLength;
 	
 	//Constructor
-	BTree(int maxNumOfObjects, boolean hasCache /*binary file*/){
-		//this.maxNumOfNodes = maxNumOfNodes;
-		this.hasCache = hasCache;
+	BTree(int maxNumOfObjects, int cacheSize, File binFile, int seqLength) throws IOException{
+		if (cacheSize != 0){
+			hasCache = true;
+			//create cache object
+			//treeCache = new cache(cacheSize);
+		}
+		else{
+			hasCache = false;
+		}
+		this.rootPointer = 20;
+		this.numOfNodes = 0;
 		this.maxNumOfObjs = maxNumOfObjects;
-		//TODO calculate BTree meta-data then set nextPointer
-		currNode = new BTreeNode<Long>(nextPointer, maxNumOfObjects);
-		//TODO write meta data to binary file
-		//TODO calculate nodeSize
+		this.nodeSize = 4 + 4 + (12*maxNumOfObjects) + (4*(maxNumOfObjects+1)) + 4;
+		this.binFile = binFile;
+		this.sequenceLength = seqLength;
+		this.nextPointer = 20;
+		currNode = newNode();
+		//make sure file is cleared of all previous data
+		this.clearFile();
+		this.writeMetaData();
+		writeNode(currNode);
 	}
 	
-	public void add(BTreeObject<Long> obj){
+	public void add(BTreeObject obj) throws IOException{
 		currNode = retreiveNode(rootPointer);	//currnode = rootnode
 		//check if node is full and split
 		if(currNode.isFull()){
@@ -40,7 +58,8 @@ public class BTree {
 			
 			while(currNode.hasChildren()){
 				parentNode = currNode;
-				currNode = retreiveNode(currNode.getChildPointer(index+1));
+				currNode = retreiveNode(currNode.getChildPointer(index));
+				//currNode = retreiveNode(currNode.getChildPointer(index+1));
 				if(currNode.isFull()){
 					this.bTreeNodeSplit();
 					//backup and process parent again
@@ -49,7 +68,7 @@ public class BTree {
 				}
 				index = currNode.findObjIndex(obj);
 				//check if equal, and inc freq. then return
-				if(obj.compareTo(currNode.getObject(index)) == 0){
+				if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
 					currNode.getObject(index).incFreqCount();
 					return;
 				}
@@ -57,24 +76,40 @@ public class BTree {
 		}
 		currNode.add(obj, index);
 		writeNode(currNode);
-		//find index where object should be inserted
-		//get child pointer at index+1
-		//currnode == child node
-		//repeat until no children
-		//insert in to this childless node.
 		
 	}
 	
-	private void writeNode(BTreeNode<Long> node){	//writes nodes to cache or file
+	/**
+	 * Used to write the BTree meta-data to file at the beginning and end of the tree creation.
+	 * @throws IOException 
+	 */
+	public void writeMetaData() throws IOException{
+		RandomAccessFile data = new RandomAccessFile(this.binFile, "rw");
+		data.seek(0);
+		data.writeInt(this.rootPointer);
+		data.writeInt(this.numOfNodes);
+		data.writeInt(this.maxNumOfObjs);
+		data.writeInt(this.nodeSize);
+		data.writeInt(this.sequenceLength);
+		data.close();
+	}
+	
+	public void clearFile() throws IOException{
+		RandomAccessFile data = new RandomAccessFile(this.binFile, "rw");
+		data.setLength(0);
+		data.close();
+	}
+	
+	private void writeNode(BTreeNode node) throws IOException{	//writes nodes to cache or file
 		if(hasCache){
 			
 		}
 		else{
-			node.nodeWrite();
+			node.nodeWrite(this.binFile);
 		}
 	}
 	
-	private BTreeNode<Long> retreiveNode(int pointer){
+	private BTreeNode retreiveNode(int pointer) throws IOException{
 		//BTreeNode<Long> tempNode;
 		if(hasCache){
 			//look for node in cache first
@@ -83,27 +118,28 @@ public class BTree {
 				//write node to cache
 		}
 		else{
-			return new BTreeNode<Long>(pointer);
+			return new BTreeNode(pointer, this.binFile);
 		}
 		return null;
 		
 	}
 	
-	private void bTreeNodeSplit(){		//Splits current node, update parent and children nodes.
+	private void bTreeNodeSplit() throws IOException{		//Splits current node, update parent and children nodes.
 		if(currNode.getNodePointer() != rootPointer){	//If not root
-			BTreeNode<Long> newNode = this.newNode();	//Create new node
+			BTreeNode newNode = this.newNode();	//Create new node
 			parentNode.addObject(currNode.getMiddleObject(), newNode.getNodePointer());//send middle obj to parent
 			newNode.overwriteBTreeObjects(currNode.getRightObjects());			//put objects right of middle in new node
 			newNode.overwriteChildPointers(currNode.getRightChildPointers());	//put right child pointers in new node
 			currNode.overwriteBTreeObjects(currNode.getLeftObjects());			//remove all but left objects from current node
 			currNode.overwriteChildPointers(currNode.getLeftChildPointers());	//remove all but left child pointers from current node
-			newNode.updateChildernsParentPointer();	//update the parent pointers to all newNodes children
-			//TODO write all node to file or cache
+			newNode.updateChildernsParentPointer(binFile, parentNode.getNodePointer());	//update the parent pointers to all newNodes children
+			writeNode(newNode);
+			writeNode(currNode);
 			}
 		else{
 		      //Create 2 new nodes  node1 and node2
-			BTreeNode<Long> newNode1 = this.newNode();	//Create new node
-			BTreeNode<Long> newNode2 = this.newNode();	//Create new node
+			BTreeNode newNode1 = this.newNode();	//Create new node
+			BTreeNode newNode2 = this.newNode();	//Create new node
 			newNode1.overwriteBTreeObjects(currNode.getLeftObjects());			 //Left obj and CHPtrs go to node1
 			newNode1.overwriteChildPointers(currNode.getLeftChildPointers());
 			newNode2.overwriteBTreeObjects(currNode.getRightObjects());			//right obj and ChPtrs go to node2
@@ -112,23 +148,25 @@ public class BTree {
 			newNode1.setParentPointer(currNode.getNodePointer());
 			newNode2.setParentPointer(currNode.getNodePointer());
 			//root keeps middle obj.
-			ArrayList<BTreeObject<Long>> tempA = new ArrayList<BTreeObject<Long>>();
+			ArrayList<BTreeObject> tempA = new ArrayList<BTreeObject>();
 			tempA.add(currNode.getMiddleObject());
 			currNode.overwriteBTreeObjects(tempA);
 			//update roots child pointers
-			int[] tempCP = new int[maxNumOfObjs];
+			int[] tempCP = new int[maxNumOfObjs+1];
 			tempCP[0] = newNode1.getNodePointer();
 			tempCP[1] = newNode2.getNodePointer();
 			currNode.overwriteChildPointers(tempCP);	//root's child pointers are node1 and node2
 			//update newNodes's Children's Parent pointer
-			newNode1.updateChildernsParentPointer();	//update the parent pointers to all newNode1's children
-			newNode2.updateChildernsParentPointer();	//update the parent pointers to all newNode2's children
-			//TODO write all nodes to file or cache
+			newNode1.updateChildernsParentPointer(binFile, currNode.getNodePointer());	//update the parent pointers to all newNode1's children
+			newNode2.updateChildernsParentPointer(binFile, currNode.getNodePointer());	//update the parent pointers to all newNode2's children
+			writeNode(newNode1);
+			writeNode(newNode2);
+			writeNode(currNode);
 		}
 	}
 	
-	private BTreeNode<Long> newNode(){
-		BTreeNode<Long> tempNode = new BTreeNode<Long>(nextPointer);	//Create new node
+	private BTreeNode newNode(){
+		BTreeNode tempNode = new BTreeNode(nextPointer, maxNumOfObjs);	//Create new node
 		nextPointer += nodeSize;			//update nextPointer
 		numOfNodes++;
 		return tempNode;
