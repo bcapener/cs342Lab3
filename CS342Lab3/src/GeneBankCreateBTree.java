@@ -157,7 +157,7 @@ public class GeneBankCreateBTree
 	private static void addSequenceToBTree(String sequence) throws IOException{
 		//convert binary string to long
 		//create BTreeObject with long
-		//add object to BTree
+		//add object to  BTree
 		long key = 0;
 		char[] data = sequence.toCharArray();
 		for(int i = data.length - 1; i >= 0; i--){
