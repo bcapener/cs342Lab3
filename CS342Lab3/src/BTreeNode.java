@@ -245,12 +245,16 @@ public class BTreeNode {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 	    String NEW_LINE = System.getProperty("line.separator");
+	    result.append(this.numOfObjects + " Objects" + NEW_LINE);
+	    result.append(this.numOfPointers + " Child Pointers" + NEW_LINE);
+	    result.append("Node Pointer: " + this.nodePointer + NEW_LINE);
 	    result.append(" BTreeObjects: " + treeObjects.toString() + NEW_LINE);
 	    result.append(" Child Pointers: [ ");
 	    for(int i=0; i<childPointers.length; i++){
 	    	result.append(childPointers[i] + " ");
 	    }
 	    result.append("] " + NEW_LINE);
+	    result.append("Parent Pointer: " + this.parentPointer + NEW_LINE);
 	    return result.toString();
 	}
 }

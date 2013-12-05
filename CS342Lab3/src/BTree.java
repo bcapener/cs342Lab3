@@ -11,7 +11,7 @@ public class BTree {
 	private BTreeNode parentNode = null;
 	private int nextPointer;	//next new node goes here
 	private int maxNumOfObjs;
-	//private cache treeCache;
+	private Cache<BTreeNode> bTreeCache;
 	private boolean hasCache;
 	private int nodeSize = 0;	//size of a node in bytes
 	private File binFile;
@@ -22,7 +22,7 @@ public class BTree {
 		if (cacheSize != 0){
 			hasCache = true;
 			//create cache object
-			//treeCache = new cache(cacheSize);
+			bTreeCache = new Cache<BTreeNode>(cacheSize);
 		}
 		else{
 			hasCache = false;
@@ -42,7 +42,7 @@ public class BTree {
 	}
 	
 	public void add(BTreeObject obj) throws IOException{
-		currNode = retreiveNode(rootPointer);	//currnode = rootnode
+		currNode = retrieveNode(rootPointer);	//currnode = rootnode
 		//check if node is full and split
 		if(currNode.isFull()){
 			this.bTreeNodeSplit();
@@ -53,12 +53,13 @@ public class BTree {
 			//check if equal, and inc freq. then return
 			if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
 				currNode.getObject(index).incFreqCount();
+				writeNode(currNode);
 				return;
 			}
 			
 			while(currNode.hasChildren()){
 				parentNode = currNode;
-				currNode = retreiveNode(currNode.getChildPointer(index));
+				currNode = retrieveNode(currNode.getChildPointer(index));
 				//currNode = retreiveNode(currNode.getChildPointer(index+1));
 				if(currNode.isFull()){
 					this.bTreeNodeSplit();
@@ -70,6 +71,7 @@ public class BTree {
 				//check if equal, and inc freq. then return
 				if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
 					currNode.getObject(index).incFreqCount();
+					writeNode(currNode);
 					return;
 				}
 			}
@@ -102,26 +104,36 @@ public class BTree {
 	
 	private void writeNode(BTreeNode node) throws IOException{	//writes nodes to cache or file
 		if(hasCache){
-			
+			BTreeNode tempNode = bTreeCache.addObject(node);	//add node to cache, and get node that fell of end of cache
+			if(tempNode != null){
+				tempNode.nodeWrite(this.binFile);				//write tempNode to binary file
+			}
 		}
 		else{
 			node.nodeWrite(this.binFile);
 		}
 	}
 	
-	private BTreeNode retreiveNode(int pointer) throws IOException{
-		//BTreeNode<Long> tempNode;
+	private BTreeNode retrieveNode(int pointer) throws IOException{
 		if(hasCache){
-			//look for node in cache first
-			//if not found in cache
-				//look for node in file
-				//write node to cache
+			BTreeNode retNode;
+			retNode = bTreeCache.getObject(pointer);			//look for node in cache first
+			if(retNode != null){								//if object found in cache
+				bTreeCache.removeObject(retNode);				//remove object
+				BTreeNode tempNode = bTreeCache.addObject(retNode);	//add object to cache, catch object that might of fallen off the cache
+				if(tempNode != null){
+					tempNode.nodeWrite(this.binFile);			//write object that fell off cache to binary file
+				}
+			}
+			else{												//else object was not found in cache
+				retNode = new BTreeNode(pointer, this.binFile);	//look for node in file
+				writeNode(retNode);								//write node to cache
+			}
+			return retNode;
 		}
 		else{
 			return new BTreeNode(pointer, this.binFile);
 		}
-		return null;
-		
 	}
 	
 	private void bTreeNodeSplit() throws IOException{	//Splits current node, update parent and children nodes.
@@ -136,8 +148,9 @@ public class BTree {
 			updateChildernsParentPointer(newNode);								//update the parent pointers to all newNodes children
 			writeNode(newNode);
 			writeNode(currNode);
+			writeNode(parentNode);
 			}
-		else{
+		else{	//Split the Root node
 		    //Create 2 new nodes  node1 and node2
 			BTreeNode newNode1 = this.newNode();	//Create new node
 			BTreeNode newNode2 = this.newNode();	//Create new node
@@ -174,7 +187,7 @@ public class BTree {
 		for(int i=0; i<node.getNumOfChildPointers(); i++){
 			BTreeNode tempNode;
 			try {
-				tempNode = retreiveNode(node.getChildPointer(i));	//get child node
+				tempNode = retrieveNode(node.getChildPointer(i));	//get child node
 				tempNode.setParentPointer(node.getNodePointer());	//update parent pointer to point to node
 				writeNode(tempNode);
 			} catch (IOException e) {

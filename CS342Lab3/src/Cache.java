@@ -24,13 +24,14 @@ public class Cache<T> {
 	 * Adds object to the head of the list. Removes last object(s) if the list 
 	 * exceeds max size
 	 * @param o Object to add at the head of the list.
+	 * @return The object that was dropped off the end of the cache
 	 */
-	public void addObject(T o){
+	public T addObject(T o){
 		list.addFirst((T) o);
 		while(list.size() > MAXSIZE){
-			list.removeLast();
+			return list.removeLast();
 		}
-		
+		return null;
 	}
 	
 	/**Removes first instance of an object in the list.
@@ -78,11 +79,11 @@ public class Cache<T> {
 	 * @param o Object to find.
 	 * @return returns first instance of an object in the list.
 	 */
-	public T getObject(T o){
+	public T getObject(int nodePointer){
 		Iterator<T> iterator = list.iterator();
 		while(iterator.hasNext()){
 			T object = iterator.next();
-			if(object.equals(o)){
+			if(((BTreeNode) object).getNodePointer() == nodePointer){
 				return object;
 			}
 		}
