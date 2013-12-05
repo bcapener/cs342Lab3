@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class BTree {
 	private int rootPointer;
 	private int numOfNodes;
+	private BTreeNode rootNode = null;
 	private BTreeNode currNode = null;
 	private BTreeNode parentNode = null;
 	private int nextPointer;	//next new node goes here
@@ -34,15 +35,16 @@ public class BTree {
 		this.binFile = binFile;
 		this.sequenceLength = seqLength;
 		this.nextPointer = 20;
-		currNode = newNode();
+		rootNode = newNode();
 		//make sure file is cleared of all previous data
 		this.clearFile();
 		this.writeMetaData();
-		writeNode(currNode);
+		writeNode(rootNode);
 	}
 	
 	public void add(BTreeObject obj) throws IOException{
-		currNode = retrieveNode(rootPointer);	//currnode = rootnode
+		//currNode = retrieveNode(rootPointer);	//currnode = rootnode
+		currNode = rootNode;	//currnode = rootnode
 		//check if node is full and split
 		if(currNode.isFull()){
 			this.bTreeNodeSplit();
