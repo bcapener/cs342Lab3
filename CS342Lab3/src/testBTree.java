@@ -9,7 +9,7 @@ public class testBTree {
 		File binFile = new File("binFile");
 		BTree bt = new BTree(3, 0, binFile, 0);
 		//Random rand = new Random();
-		int[] array = {10,20,30,5,11,6};
+		int[] array = {200,200,100,100,300,300,50,50,150,150,25,25,75,75,12,12,32,32,6,6,18,18,15,15,33,33,200,100,300,50,150,25,75,12,32,6,18,15,33};
 		/*
 		while(true){
 			bt.add(new BTreeObject(new Long(rand.nextInt(Integer.MAX_VALUE))));

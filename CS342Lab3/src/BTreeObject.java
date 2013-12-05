@@ -35,7 +35,7 @@ public class BTreeObject implements Comparable<BTreeObject>{
 	@Override 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-	    String NEW_LINE = System.getProperty("line.separator");
+	    //String NEW_LINE = System.getProperty("line.separator");
 	    result.append(" Key: " + key.toString());
 	    result.append(" FC: " + freqCount);
 

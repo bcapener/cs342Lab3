@@ -53,6 +53,7 @@ public class BTree {
 			//check if equal, and inc freq. then return
 			if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
 				currNode.getObject(index).incFreqCount();
+				writeNode(currNode);
 				return;
 			}
 			
@@ -70,6 +71,7 @@ public class BTree {
 				//check if equal, and inc freq. then return
 				if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
 					currNode.getObject(index).incFreqCount();
+					writeNode(currNode);
 					return;
 				}
 			}

@@ -22,8 +22,8 @@ public class readBinaryFile {
 		System.out.println();
 		
 		int nextNode = 20;
+		File newFile = new File("binFile");
 		for(int j=0; j<numOfNodes; j++){
-			File newFile = new File("binFile");
 			BTreeNode tempNode = new BTreeNode(nextNode, newFile);
 			System.out.println(tempNode.toString());
 			nextNode += nodeSize;
