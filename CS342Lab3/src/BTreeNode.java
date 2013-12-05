@@ -110,6 +110,9 @@ public class BTreeNode {
 	}
 	
 	public BTreeObject getObject(int index){
+		if(index < 0 || index > this.numOfObjects){
+			return null;
+		}
 		return treeObjects.get(index);
 	}
 	
