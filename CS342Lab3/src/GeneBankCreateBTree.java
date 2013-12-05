@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.StringTokenizer;
 
 public class GeneBankCreateBTree
 {
@@ -80,10 +81,81 @@ public class GeneBankCreateBTree
 		
 		//parse file?
 		
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader (new FileReader(inputFile));
+		} catch (IOException e) {
+			System.out.println("file was not found. Program Cannot run!");
+			e.printStackTrace();
+			return;
+		}
+		String line;
+		String binaryString = "";
+		StringTokenizer tokenizer;
+		boolean searchingSequence = false;
+		
+		//loops through lines and tokens of input file
+		try {
+			while((line  = reader.readLine()) != null){
+				tokenizer = new StringTokenizer (line);
+				//loops through tokens of each line
+				while(tokenizer.hasMoreTokens()){
+					String s = tokenizer.nextToken();
+					//toggles weather its currently in a sequence to parses data and create objects
+					if(s.equals("ORIGIN")){
+						searchingSequence = !searchingSequence;
+						
+						//where it parses the 4 different DNA types to add objects o tree
+						if(searchingSequence){
+							char[] data = s.toCharArray();
+							//checks characters of each token
+							for(int i = data.length; i < 0; i++){
+								String newData = convertCharacterToBinary(data[i]);
+								binaryString = binaryString + newData;
+								if(binaryString.length() > sequenceLength*2){
+									binaryString = binaryString.substring(2);
+								}
+								//adds object to tree if sequence changed and sequence is right length
+								if(!newData.equals(null) && binaryString.length() == sequenceLength*2){
+									addSequenceToBTree(binaryString);
+								}
+							}
+						}
+					}
+				}
+				
+			}
+		} catch (IOException e) {
+			System.out.println (e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	public static void dumpText()
 	{
 		
 	}
-}
+	
+	private static String convertCharacterToBinary(char c){
+		if(c == 'a' || c == 'A'){
+			return "00";
+		}
+		else if(c == 't' || c == 'T'){
+			return "11";
+		}
+		else if(c == 'c' || c == 'C'){
+			return "01";
+		}
+		else if(c == 'g' || c == 'G'){
+			return "10";
+		}
+		return null;
+	}
+
+	//needs more work
+	private static void addSequenceToBTree(String sequence){
+		//convert binary string to long
+		//create BTreeObject with long
+		//add object to BTree
+		}
+	}
