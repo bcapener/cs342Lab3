@@ -136,8 +136,9 @@ public class BTree {
 			updateChildernsParentPointer(newNode);								//update the parent pointers to all newNodes children
 			writeNode(newNode);
 			writeNode(currNode);
+			writeNode(parentNode);
 			}
-		else{
+		else{	//Split the Root node
 		    //Create 2 new nodes  node1 and node2
 			BTreeNode newNode1 = this.newNode();	//Create new node
 			BTreeNode newNode2 = this.newNode();	//Create new node
