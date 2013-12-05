@@ -3,6 +3,7 @@ import java.util.StringTokenizer;
 
 public class GeneBankCreateBTree
 {
+	static BTree geneBankTree;
 	static boolean useCache = false;
 	static int degree;
 	static File inputFile;
@@ -153,9 +154,18 @@ public class GeneBankCreateBTree
 	}
 
 	//needs more work
-	private static void addSequenceToBTree(String sequence){
+	private static void addSequenceToBTree(String sequence) throws IOException{
 		//convert binary string to long
 		//create BTreeObject with long
 		//add object to BTree
+		long key = 0;
+		char[] data = sequence.toCharArray();
+		for(int i = data.length - 1; i >= 0; i--){
+			if(data[i] == '1'){
+				key = (long) (key + Math.pow(2, i));
+			}
 		}
+		BTreeObject object = new BTreeObject(key);	
+		geneBankTree.add(object);
 	}
+}
