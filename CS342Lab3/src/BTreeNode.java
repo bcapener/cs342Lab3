@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -49,31 +48,7 @@ public class BTreeNode {
 		treeObjects.add(index, newObj);			//insert obj at index
 		this.numOfObjects++;
 	}
-	/*
-	//used when adding object to a leaf node
-	public int addObject(BTreeObject<E> newTreeObj){
-		//non full node is expected
-		Iterator<BTreeObject<E>> it = treeObjects.iterator();
-		int index=0;
-		while(it.hasNext()){	//while there are still objects in the array
-			BTreeObject<E> existingTreeObj = it.next();		//next object from array
-			if(newTreeObj.compareTo(existingTreeObj) < 0){	//new object is less
-				treeObjects.add(index, newTreeObj);			//insert obj at index
-				return index;
-			}
-			else if(newTreeObj.compareTo(existingTreeObj) == 0){	//objects are equal
-				existingTreeObj.incFreqCount(); 	//Increment the frequency count of the object.
-				return -1;
-			}
-			else{		//new object is greater than
-				index++;
-			}
-		}
-		treeObjects.add(newTreeObj);		//insert obj at end
-		return index;
-		
-	}
-	*/
+
 	//used when splitting a child node, this the parent node adds the 
 	//child's middle object, and the pointer to the new node.
 	public void addObject(BTreeObject to, int ChPtr){
@@ -142,6 +117,10 @@ public class BTreeNode {
 		return childPointers[index];
 	}
 	
+	public int getNumOfChildPointers(){
+		return this.numOfPointers;
+	}
+	
 	public int[] getRightChildPointers(){
 		int index;
 		int[] tempA = new int[maxNumOfObjects+1];			//make sure this array is init correctly###########
@@ -192,7 +171,6 @@ public class BTreeNode {
 	}
 	
 	public boolean isFull(){
-		//true if the node is full
 		if(maxNumOfObjects == numOfObjects){
 			return true;
 		}
@@ -207,17 +185,16 @@ public class BTreeNode {
 	
 	private void nodeRead(int pointer, File binFile) throws IOException{		//read in node from file and populate object from "nodePointer"
 		RandomAccessFile data = new RandomAccessFile(binFile, "r");
-		data.seek(8); 			//
+		data.seek(8); 							//read in BTree meta-data
 		this.maxNumOfObjects = data.readInt();
 		this.childPointers = new int[maxNumOfObjects+1];
 		this.treeObjects = new ArrayList<BTreeObject>(maxNumOfObjects);
-		data.seek(nodePointer);
-		this.numOfObjects = data.readInt();
+		data.seek(nodePointer);					//seek to this node
+		this.numOfObjects = data.readInt();		//read in BTreeNode meta-data
 		this.numOfPointers = data.readInt();
-		//read TreeObjects
 		int freqCnt;
 		Long key;
-		for(int i=0; i<maxNumOfObjects; i++){
+		for(int i=0; i<maxNumOfObjects; i++){	//read BTreeObjects
 			if(i<numOfObjects){
 				freqCnt = data.readInt();
 				key = data.readLong();
@@ -225,57 +202,42 @@ public class BTreeNode {
 				this.treeObjects.add(tempObject);
 			}
 			else{
-				data.skipBytes(12);
+				data.skipBytes(12);				//skip reading in next 12 bytes, no object exists there.
 			}
 		}
-		//read Child Pointers
-		for(int i=0; i<maxNumOfObjects+1; i++){
-			this.childPointers[i] = data.readInt();
+		for(int i=0; i<maxNumOfObjects+1; i++){			//read Child Pointers
+			this.childPointers[i] = data.readInt();		
 		}
-		//read Parent Pointer
-		this.parentPointer = data.readInt();
-		data.close();
-	}
-	public void nodeWrite(File binFile) throws IOException{		//write this object to the file at "nodePointer"
-		RandomAccessFile data = new RandomAccessFile(binFile, "rw");
-		//read in maxNumOfObj from BTree meta-data
-		//read in nodeSize from BTree meta-dat
-		data.seek(nodePointer);
-		data.writeInt(numOfObjects);
-		data.writeInt(numOfPointers);
-		//write TreeObjects
-		for(int i=0; i<maxNumOfObjects; i++){
-			if(i<numOfObjects){
-				BTreeObject tempObject = treeObjects.get(i);
-				data.writeInt(tempObject.getFreqCount());
-				data.writeLong(tempObject.getKey());
-			}
-			else{
-				data.writeInt(0);
-				data.writeLong(0);
-			}
-		}
-		//write Child Pointers
-		for(int i=0; i<maxNumOfObjects+1; i++){
-			if(i<numOfPointers){
-				data.writeInt(childPointers[i]);
-			}
-			else{
-				data.writeInt(0);
-			}
-		}
-		//write Parent Pointer
-		data.writeInt(parentPointer);
+		this.parentPointer = data.readInt();			//read Parent Pointer
 		data.close();
 	}
 	
-	public void updateChildernsParentPointer(File binFile, int newParentNode) throws IOException{
-		//TODO
-		//update the PPtr of all children
-		//dont read in all children to memory, just update PPtr in binary file.
+	public void nodeWrite(File binFile) throws IOException{		//write this object to the file at "nodePointer"
 		RandomAccessFile data = new RandomAccessFile(binFile, "rw");
-		int skipVal = 8 + (12*maxNumOfObjects) +  (4*(maxNumOfObjects+1));
-		data.skipBytes(skipVal);
+		data.seek(nodePointer);					//seek to node
+		data.writeInt(numOfObjects);			//write meta-data to binary file
+		data.writeInt(numOfPointers);
+		for(int i=0; i<maxNumOfObjects; i++){	//write TreeObjects
+			if(i<numOfObjects){
+				BTreeObject tempObject = treeObjects.get(i);	//get next BTreeObject
+				data.writeInt(tempObject.getFreqCount());		//write the frequency count to binary file
+				data.writeLong(tempObject.getKey());			//write the key to binary file
+			}
+			else{
+				data.writeInt(0);		//where there are no BTreeObjects write zeros to binary file
+				data.writeLong(0);
+			}
+		}
+		
+		for(int i=0; i<maxNumOfObjects+1; i++){		//write Child Pointers
+			if(i<numOfPointers){
+				data.writeInt(childPointers[i]);	//write child pointer to binary file
+			}
+			else{
+				data.writeInt(0);		//where there are no child pointers write zeros to binary file
+			}
+		}
+		data.writeInt(parentPointer);	//write Parent Pointer
 		data.close();
 	}
 	
@@ -283,8 +245,6 @@ public class BTreeNode {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 	    String NEW_LINE = System.getProperty("line.separator");
-
-	    //result.append(this.getClass().getName());
 	    result.append(" BTreeObjects: " + treeObjects.toString() + NEW_LINE);
 	    result.append(" Child Pointers: [ ");
 	    for(int i=0; i<childPointers.length; i++){

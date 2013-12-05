@@ -124,41 +124,38 @@ public class BTree {
 		
 	}
 	
-	private void bTreeNodeSplit() throws IOException{		//Splits current node, update parent and children nodes.
+	private void bTreeNodeSplit() throws IOException{	//Splits current node, update parent and children nodes.
 		if(currNode.getNodePointer() != rootPointer){	//If not root
-			BTreeNode newNode = this.newNode();	//Create new node
-			parentNode.addObject(currNode.getMiddleObject(), newNode.getNodePointer());//send middle obj to parent
-			newNode.overwriteBTreeObjects(currNode.getRightObjects());			//put objects right of middle in new node
-			newNode.overwriteChildPointers(currNode.getRightChildPointers());	//put right child pointers in new node
-			currNode.overwriteBTreeObjects(currNode.getLeftObjects());			//remove all but left objects from current node
-			currNode.overwriteChildPointers(currNode.getLeftChildPointers());	//remove all but left child pointers from current node
-			newNode.updateChildernsParentPointer(binFile, parentNode.getNodePointer());	//update the parent pointers to all newNodes children
+			BTreeNode newNode = this.newNode();			//Create new node
+			parentNode.addObject(currNode.getMiddleObject(), newNode.getNodePointer());	//send middle object to parent
+			newNode.setParentPointer(parentNode.getNodePointer());				//update newNodes parent pointers
+			newNode.overwriteBTreeObjects(currNode.getRightObjects());			//put currNode's objects right of middle in newNode
+			newNode.overwriteChildPointers(currNode.getRightChildPointers());	//put currNode's right child pointers in newNode
+			currNode.overwriteBTreeObjects(currNode.getLeftObjects());			//remove all but left objects from currNode
+			currNode.overwriteChildPointers(currNode.getLeftChildPointers());	//remove all but left child pointers from currNode
+			updateChildernsParentPointer(newNode);								//update the parent pointers to all newNodes children
 			writeNode(newNode);
 			writeNode(currNode);
 			}
 		else{
-		      //Create 2 new nodes  node1 and node2
+		    //Create 2 new nodes  node1 and node2
 			BTreeNode newNode1 = this.newNode();	//Create new node
 			BTreeNode newNode2 = this.newNode();	//Create new node
 			newNode1.overwriteBTreeObjects(currNode.getLeftObjects());			 //Left obj and CHPtrs go to node1
 			newNode1.overwriteChildPointers(currNode.getLeftChildPointers());
 			newNode2.overwriteBTreeObjects(currNode.getRightObjects());			//right obj and ChPtrs go to node2
 			newNode2.overwriteChildPointers(currNode.getRightChildPointers());
-			//update newNodes parent pointers
-			newNode1.setParentPointer(currNode.getNodePointer());
+			newNode1.setParentPointer(currNode.getNodePointer());				//update newNodes parent pointers
 			newNode2.setParentPointer(currNode.getNodePointer());
-			//root keeps middle obj.
-			ArrayList<BTreeObject> tempA = new ArrayList<BTreeObject>();
+			ArrayList<BTreeObject> tempA = new ArrayList<BTreeObject>();		//root keeps middle obj.
 			tempA.add(currNode.getMiddleObject());
 			currNode.overwriteBTreeObjects(tempA);
-			//update roots child pointers
-			int[] tempCP = new int[maxNumOfObjs+1];
+			int[] tempCP = new int[maxNumOfObjs+1];		//update roots child pointers
 			tempCP[0] = newNode1.getNodePointer();
 			tempCP[1] = newNode2.getNodePointer();
 			currNode.overwriteChildPointers(tempCP);	//root's child pointers are node1 and node2
-			//update newNodes's Children's Parent pointer
-			newNode1.updateChildernsParentPointer(binFile, currNode.getNodePointer());	//update the parent pointers to all newNode1's children
-			newNode2.updateChildernsParentPointer(binFile, currNode.getNodePointer());	//update the parent pointers to all newNode2's children
+			updateChildernsParentPointer(newNode1);		//update the parent pointers to all newNode1's children
+			updateChildernsParentPointer(newNode2);		//update the parent pointers to all newNode2's children
 			writeNode(newNode1);
 			writeNode(newNode2);
 			writeNode(currNode);
@@ -167,8 +164,25 @@ public class BTree {
 	
 	private BTreeNode newNode(){
 		BTreeNode tempNode = new BTreeNode(nextPointer, maxNumOfObjs);	//Create new node
-		nextPointer += nodeSize;			//update nextPointer
-		numOfNodes++;
+		nextPointer += nodeSize;	//update nextPointer
+		numOfNodes++;				//increment the number of nodes
 		return tempNode;
 	}
+	
+	public void updateChildernsParentPointer(BTreeNode node){
+		//update the PPtr of all children
+		for(int i=0; i<node.getNumOfChildPointers(); i++){
+			BTreeNode tempNode;
+			try {
+				tempNode = retreiveNode(node.getChildPointer(i));	//get child node
+				tempNode.setParentPointer(node.getNodePointer());	//update parent pointer to point to node
+				writeNode(tempNode);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
 }
