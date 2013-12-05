@@ -43,14 +43,11 @@ public class BTree {
 	}
 	
 	public void add(BTreeObject obj) throws IOException{
-		//currNode = retrieveNode(rootPointer);	//currnode = rootnode
-		currNode = rootNode;	//currnode = rootnode
-		//check if node is full and split
-		if(currNode.isFull()){
+		currNode = rootNode;
+		if(currNode.isFull()){		//check if node is full and split
 			this.bTreeNodeSplit();
 		}
 		int index = currNode.findObjIndex(obj);
-		
 		if(!currNode.isEmpty()){
 			//check if equal, and inc freq. then return
 			if(currNode.getNumOfObj() != index && obj.compareTo(currNode.getObject(index)) == 0){
@@ -62,12 +59,9 @@ public class BTree {
 			while(currNode.hasChildren()){
 				parentNode = currNode;
 				currNode = retrieveNode(currNode.getChildPointer(index));
-				//currNode = retreiveNode(currNode.getChildPointer(index+1));
 				if(currNode.isFull()){
 					this.bTreeNodeSplit();
-					//backup and process parent again
-					//what to do here?
-					currNode = parentNode;
+					currNode = parentNode;			//backup and process parent again
 				}
 				index = currNode.findObjIndex(obj);
 				//check if equal, and inc freq. then return
@@ -80,7 +74,6 @@ public class BTree {
 		}
 		currNode.add(obj, index);
 		writeNode(currNode);
-		
 	}
 	
 	/**
