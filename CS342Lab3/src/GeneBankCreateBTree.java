@@ -5,13 +5,16 @@ public class GeneBankCreateBTree
 {
 	static BTree geneBankTree;
 	static boolean useCache = false;
-	static int degree;
+	static Integer degree;
 	static File inputFile;
-	static int sequenceLength;
-	static int cacheSize;
+	static Integer sequenceLength;
+	static int cacheSize = 0;
 	static int debugLevel;
+	static final int METADATASIZE = 64;
+	static final int POINTERSIZE = 32;
+	static final int OBJECTSIZE = 96;
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		if (args.length < 4 || args.length > 6)
 		{
@@ -50,37 +53,37 @@ public class GeneBankCreateBTree
 			}
 		}
 		
-		buildTree(degree, sequenceLength);
-		if (debugLevel == 1)
-		{
-			dumpText();
-		}
+		buildTree();
+		
+		if (debugLevel == 1) dumpText();
 		
 	}
 	
 	public static void argumentFormat()
 	{
-		
+		System.out.println("Command line should read as follows:");
+		System.out.println("java GeneBankCreateBTree <0/1(no/with Cache) <degree> <gbk file> <sequence length>");
+		System.out.println("[<cache size>] [<debug level>");
 	}
 	
 	public static int findDegree()
 	{
+		int nodeValue;
 		int degreeValue = 0;
+		
+		nodeValue = (OBJECTSIZE * 2) + (POINTERSIZE * 2);
+		degreeValue = 4096 - METADATASIZE + POINTERSIZE - OBJECTSIZE  / nodeValue;
+		
 		return degreeValue;
 	}
 	
-	public static void buildTree(int degree, int sequenceLength)
+	public static void buildTree() throws IOException
 	{
-		if (useCache == true)
-		{
-			//BTree geneBankTree = new BTree(cacheSize, degree, sequenceLength)
-		}
-		else 
-		{
-			//BTree geneBankTree = new BTree(degree, sequenceLength)
-		}
+		int maxObjects = (2 * degree) - 1;
+		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + Integer.toString(degree);
+		File binFile = new File(binaryFile);
 		
-		//parse file?
+		geneBankTree = new BTree(maxObjects, cacheSize, binFile, sequenceLength);
 		
 		BufferedReader reader;
 		try {
@@ -155,10 +158,10 @@ public class GeneBankCreateBTree
 
 	//needs more work
 	private static void addSequenceToBTree(String sequence) throws IOException{
-		//convert binary string to long
-		//create BTreeObject with long
-		//add object to  BTree
+		
 		long key = 0;
+		
+		//converts binary string to a long
 		char[] data = sequence.toCharArray();
 		for(int i = data.length - 1; i >= 0; i--){
 			if(data[i] == '1'){

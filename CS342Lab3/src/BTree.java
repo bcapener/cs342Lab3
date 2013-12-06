@@ -1,8 +1,11 @@
 import java.io.File;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Stack;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-
 
 public class BTree {
 	private int rootPointer;
@@ -193,4 +196,66 @@ public class BTree {
 		}
 	}
 	
+	private class BTreeIterator<BTreeObject> implements Iterator<BTreeObject>
+	{
+		private Stack nodeIndex;
+		private int nextObjectIndex;
+		private BTreeNode curr;
+		private boolean addMiddleNode;
+		
+		/**constructor for MyIterator, sets variables to default values
+		 * 
+		 */
+		public BTreeIterator()
+		{
+			curr = rootNode;
+			nextObjectIndex = -1;
+			nodeIndex = new Stack();
+			nodeIndex.push(0);
+			addMiddleNode = true;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return !nodeIndex.isEmpty();
+		}
+
+		@Override
+		public BTreeObject next() {
+			
+			// if current node has no children return next in its list
+			if(curr.getNumOfChildPointers() <= 0){
+				nextObjectIndex++;
+				if(nextObjectIndex < curr.getNumOfObj()){
+					return (BTreeObject) curr.getObject(nextObjectIndex);
+				}
+			}
+			
+			int index = (int) nodeIndex.pop();
+			//curr = curr.getParentPointer(); how do i get parent from pointer?
+			
+			//if we haven't checked all children add middle object or go to next child
+			if(index < curr.getNumOfChildPointers()){
+				//returns next in node list before going to next child node
+				BTreeObject rval = (BTreeObject) curr.getObject(index - 1);
+				if(addMiddleNode && !rval.equals(null)){
+					addMiddleNode = false;
+					return rval;
+				}
+				addMiddleNode = true;
+			}
+			
+			else{
+				
+			}
+			
+			//needs work
+			return null;
+
+		}
+
+		@Override
+		public void remove() { throw new UnsupportedOperationException(); }
+
+	}
 }
