@@ -168,15 +168,14 @@ public class BTree {
 	
 	private void writeNode(BTreeNode node) throws IOException{	//writes nodes to cache or file
 		if(hasCache){
-			//check if node already exists 
-			//if so, remove it then add
-			BTreeNode existingNode = bTreeCache.getObject(node.getNodePointer());
+			
+			BTreeNode existingNode = bTreeCache.getObject(node.getNodePointer());	//check if node already exists 
 			if(existingNode != null){
-				bTreeCache.removeObject(existingNode);
+				bTreeCache.removeObject(existingNode);								//if so, remove it
 			}
 			BTreeNode tempNode = bTreeCache.addObject(node);	//add node to cache, and get node that fell of end of cache
-			if(tempNode != null){
-				tempNode.nodeWrite(this.binFile);				//write tempNode to binary file
+			if(tempNode != null){								//if node fell off the end of cache
+				tempNode.nodeWrite(this.binFile);				//write node to binary file
 			}
 		}
 		else{
@@ -190,10 +189,12 @@ public class BTree {
 			retNode = bTreeCache.getObject(pointer);			//look for node in cache first
 			if(retNode != null){								//if object found in cache
 				bTreeCache.removeObject(retNode);				//remove object
-				BTreeNode tempNode = bTreeCache.addObject(retNode);	//add object to cache, catch object that might of fallen off the cache
+				bTreeCache.addObject(retNode);	//add object to cache, catch object that might of fallen off the cache
+				/*
 				if(tempNode != null){
 					tempNode.nodeWrite(this.binFile);			//write object that fell off cache to binary file
 				}
+				*/
 			}
 			else{												//else object was not found in cache
 				retNode = new BTreeNode(pointer, this.binFile);	//look for node in file
