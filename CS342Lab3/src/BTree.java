@@ -273,10 +273,11 @@ public class BTree {
 	
 	private class BTreeIterator<BTreeObject> implements Iterator<BTreeObject>
 	{
-		private Stack nodeIndex;
+		private Stack<Integer> nodeIndex;
 		private int nextObjectIndex;
 		private BTreeNode curr;
 		private boolean addMiddleNode;
+		BTreeNode parent;
 		
 		/**constructor for MyIterator, sets variables to default values
 		 * 
@@ -288,6 +289,7 @@ public class BTree {
 			nodeIndex = new Stack();
 			nodeIndex.push(0);
 			addMiddleNode = true;
+			parent = null;
 		}
 
 		@Override
@@ -305,25 +307,50 @@ public class BTree {
 					return (BTreeObject) curr.getObject(nextObjectIndex);
 				}
 			}
+			nextObjectIndex = 0; 
 			
 			int index = (int) nodeIndex.pop();
-			//curr = curr.getParentPointer(); how do i get parent from pointer?
+			//get reference to curr parent
+			//retrieves parent
+			try {
+				parent = retrieveNode(curr.getParentPointer());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			//if we haven't checked all children add middle object or go to next child
-			if(index < curr.getNumOfChildPointers()){
-				//returns next in node list before going to next child node
-				BTreeObject rval = (BTreeObject) curr.getObject(index - 1);
-				if(addMiddleNode && !rval.equals(null)){
-					addMiddleNode = false;
-					return rval;
+			//if there are more objects than children nodes and index is past the children node number
+			if(index >= parent.getNumOfChildPointers() && index <= parent.getNumOfObj()){
+				nodeIndex.push(index);
+				BTreeObject rval = (BTreeObject) parent.getObject(index - 1);
+				if(!rval.equals(null)) return rval;
+			}
+			//finished searching that node and its children
+			if(parent.getNumOfChildPointers() <= index && parent.getNumOfObj() <= index){
+				next();
+			}
+			
+			
+			//less objects than child pointers
+			if(parent.getNumOfChildPointers() > parent.getNumOfObj()){ 
+				//if we haven't checked all children add middle object or go to next child
+				if(index < parent.getNumOfChildPointers()){
+					//returns next in node list before going to next child node
+					if(addMiddleNode){
+						nodeIndex.push(index);
+						BTreeObject rval = (BTreeObject) parent.getObject(index - 1);
+						if(!rval.equals(null)){
+							addMiddleNode = false;
+							return rval;
+						}
+					}
+					else{
+						addMiddleNode = true;
+					}
 				}
-				addMiddleNode = true;
+				else{
+				}
 			}
-			
-			else{
-				
-			}
-			
 			//needs work
 			return null;
 

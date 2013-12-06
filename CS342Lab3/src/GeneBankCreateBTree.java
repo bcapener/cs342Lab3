@@ -7,7 +7,7 @@ public class GeneBankCreateBTree
 	static boolean useCache = false;
 	static Integer degree;
 	static File inputFile;
-	static Integer sequenceLength;
+	static Integer sequenceLength; //vla
 	static int cacheSize = 0;
 	static int debugLevel;
 	static final int METADATASIZE = 64;
