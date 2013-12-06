@@ -20,7 +20,7 @@ public class GeneBankSearch
 			argumentFormat();
 		}
 		
-		if(args[0] == "1") useCache = true;
+		if(args[0].equals("1")) useCache = true;
 		
 		bTreeFile = new File(args[1]);
 		queryFile = new File(args[2]);
@@ -33,7 +33,7 @@ public class GeneBankSearch
 		}
 		else if(args.length == 4)
 		{
-			if (args[3] == "0" | args[3] == "1")
+			if (args[3].equals("0") | args[3].equals("1"))
 			{
 				debugLevel = Integer.valueOf(args[3]);
 			}

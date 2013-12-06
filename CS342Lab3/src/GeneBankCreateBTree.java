@@ -22,9 +22,9 @@ public class GeneBankCreateBTree
 			argumentFormat();
 		}
 		
-		if(args[0] == "1") useCache = true;
+		if(args[0].equals("1")) useCache = true;
 		
-		if (args[1] == "0")
+		if (args[1].equals("0"))
 		{
 			degree = findDegree();
 		}
@@ -43,7 +43,7 @@ public class GeneBankCreateBTree
 		}
 		else if(args.length == 5)
 		{
-			if (args[4] == "0" | args[4] == "1")
+			if (args[4].equals("0") | args[4].equals("1"))
 			{
 				debugLevel = Integer.valueOf(args[4]);
 			}
