@@ -94,6 +94,14 @@ public class BTree {
 		data.close();
 	}
 	
+	public void writeCacheToFile() throws IOException{
+		BTreeNode tempNode = bTreeCache.removeFirstObject();
+		while(tempNode != null){
+			tempNode.nodeWrite(this.binFile);
+			tempNode = bTreeCache.removeFirstObject();
+		}
+	}
+	
 	public void clearFile() throws IOException{
 		RandomAccessFile data = new RandomAccessFile(this.binFile, "rw");
 		data.setLength(0);
@@ -102,6 +110,12 @@ public class BTree {
 	
 	private void writeNode(BTreeNode node) throws IOException{	//writes nodes to cache or file
 		if(hasCache){
+			//check if node already exists 
+			//if so, remove it then add
+			BTreeNode existingNode = bTreeCache.getObject(node.getNodePointer());
+			if(existingNode != null){
+				bTreeCache.removeObject(existingNode);
+			}
 			BTreeNode tempNode = bTreeCache.addObject(node);	//add node to cache, and get node that fell of end of cache
 			if(tempNode != null){
 				tempNode.nodeWrite(this.binFile);				//write tempNode to binary file

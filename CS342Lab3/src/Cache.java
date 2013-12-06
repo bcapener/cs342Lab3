@@ -43,6 +43,16 @@ public class Cache<T> {
 		return(list.remove(o));
 	}
 	
+	public T removeFirstObject(){
+		if(list.isEmpty()){
+			return null;
+		}
+		else{
+			return list.removeFirst();
+		}
+		
+	}
+	
 	/**
 	 * Clears the cache list.
 	 */
@@ -83,7 +93,8 @@ public class Cache<T> {
 		Iterator<T> iterator = list.iterator();
 		while(iterator.hasNext()){
 			T object = iterator.next();
-			if(((BTreeNode) object).getNodePointer() == nodePointer){
+			int cacheNodePointer = ((BTreeNode) object).getNodePointer();
+			if(cacheNodePointer == nodePointer){
 				return object;
 			}
 		}
