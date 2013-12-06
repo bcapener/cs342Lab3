@@ -95,6 +95,7 @@ public class GeneBankCreateBTree
 		}
 		String line;
 		String binaryString = "";
+		String sequence = "";
 		StringTokenizer tokenizer;
 		boolean searchingSequence = false;
 		
@@ -113,8 +114,12 @@ public class GeneBankCreateBTree
 							char[] data = s.toCharArray();
 							//checks characters of each token
 							for(int i = 0; i < data.length; i++){
+								sequence = sequence +data[i];
 								String newData = convertCharacterToBinary(data[i]);
 								binaryString = binaryString + newData;
+								if(sequence.length() > sequenceLength){
+									sequence = sequence.substring(1);
+								}
 								if(binaryString.length() > sequenceLength*2){
 									binaryString = binaryString.substring(2);
 								}
