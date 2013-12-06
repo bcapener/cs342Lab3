@@ -72,7 +72,7 @@ public class GeneBankCreateBTree
 		int degreeValue = 0;
 		
 		nodeValue = (OBJECTSIZE * 2) + (POINTERSIZE * 2);
-		degreeValue = 4096 - METADATASIZE + POINTERSIZE - OBJECTSIZE  / nodeValue;
+		degreeValue = (4096 - (METADATASIZE + POINTERSIZE - OBJECTSIZE))  / nodeValue;
 		
 		return degreeValue;
 	}

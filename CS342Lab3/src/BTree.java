@@ -153,10 +153,12 @@ public class BTree {
 	}
 	
 	public void writeCacheToFile() throws IOException{
-		BTreeNode tempNode = bTreeCache.removeFirstObject();
-		while(tempNode != null){
-			tempNode.nodeWrite(this.binFile);
-			tempNode = bTreeCache.removeFirstObject();
+		if(hasCache){
+			BTreeNode tempNode = bTreeCache.removeFirstObject();
+			while(tempNode != null){
+				tempNode.nodeWrite(this.binFile);
+				tempNode = bTreeCache.removeFirstObject();
+			}
 		}
 	}
 	
