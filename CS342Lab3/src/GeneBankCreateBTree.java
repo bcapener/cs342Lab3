@@ -72,7 +72,7 @@ public class GeneBankCreateBTree
 		int degreeValue = 0;
 		
 		nodeValue = (OBJECTSIZE * 2) + (POINTERSIZE * 2);
-		degreeValue = 4096 - METADATASIZE + POINTERSIZE - OBJECTSIZE  / nodeValue;
+		degreeValue = (4096 - (METADATASIZE + POINTERSIZE - OBJECTSIZE))  / nodeValue;
 		
 		return degreeValue;
 	}
@@ -80,7 +80,7 @@ public class GeneBankCreateBTree
 	public static void buildTree() throws IOException
 	{
 		int maxObjects = (2 * degree) - 1;
-		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + Integer.toString(degree);
+		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
 		File binFile = new File(binaryFile);
 		
 		geneBankTree = new BTree(maxObjects, cacheSize, binFile, sequenceLength);
