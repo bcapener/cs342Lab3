@@ -113,7 +113,7 @@ public class GeneBankCreateBTree
 						if(searchingSequence){
 							char[] data = s.toCharArray();
 							//checks characters of each token
-							for(int i = data.length; i < 0; i++){
+							for(int i = 0; i < data.length; i++){
 								String newData = convertCharacterToBinary(data[i]);
 								binaryString = binaryString + newData;
 								if(binaryString.length() > sequenceLength*2){
@@ -163,10 +163,12 @@ public class GeneBankCreateBTree
 		
 		//converts binary string to a long
 		char[] data = sequence.toCharArray();
+		int exp = 0;
 		for(int i = data.length - 1; i >= 0; i--){
 			if(data[i] == '1'){
-				key = (long) (key + Math.pow(2, i));
+				key = (long) (key + Math.pow(2, exp));
 			}
+			exp++;
 		}
 		BTreeObject object = new BTreeObject(key);	
 		geneBankTree.add(object);
