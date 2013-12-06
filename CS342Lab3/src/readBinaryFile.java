@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 public class readBinaryFile {
 
 	public static void main(String[] args) throws IOException {
-		RandomAccessFile data = new RandomAccessFile("binFile", "r");
+		RandomAccessFile data = new RandomAccessFile("/home/students/bcapener/test3.gbk.btree.data.73", "r");
 		data.seek(0); 							//read in BTree meta-data
 		int rootPointer = data.readInt();
 		int numOfNodes = data.readInt();
@@ -22,7 +22,7 @@ public class readBinaryFile {
 		System.out.println();
 		
 		int nextNode = 20;
-		File newFile = new File("binFile");
+		File newFile = new File("/home/students/bcapener/test3.gbk.btree.data.73");
 		for(int j=0; j<numOfNodes; j++){
 			BTreeNode tempNode = new BTreeNode(nextNode, newFile);
 			System.out.println(tempNode.toString());
