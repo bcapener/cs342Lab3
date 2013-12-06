@@ -80,7 +80,7 @@ public class GeneBankCreateBTree
 	public static void buildTree() throws IOException
 	{
 		int maxObjects = (2 * degree) - 1;
-		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + Integer.toString(degree);
+		String binaryFile = "/home/students/bcapener/"+inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
 		File binFile = new File(binaryFile);
 		
 		geneBankTree = new BTree(maxObjects, cacheSize, binFile, sequenceLength);
@@ -106,11 +106,10 @@ public class GeneBankCreateBTree
 				while(tokenizer.hasMoreTokens()){
 					String s = tokenizer.nextToken();
 					//toggles weather its currently in a sequence to parses data and create objects
-					if(s.equals("ORIGIN")){
-						searchingSequence = !searchingSequence;
-						
+					if(s.equals("ORIGIN"))searchingSequence = true;
+					if(s.equals("//"))searchingSequence = false;
 						//where it parses the 4 different DNA types to add objects o tree
-						if(searchingSequence){
+						if(searchingSequence && !s.equals("ORIGIN")){
 							char[] data = s.toCharArray();
 							//checks characters of each token
 							for(int i = 0; i < data.length; i++){
@@ -120,12 +119,11 @@ public class GeneBankCreateBTree
 									binaryString = binaryString.substring(2);
 								}
 								//adds object to tree if sequence changed and sequence is right length
-								if(!newData.equals(null) && binaryString.length() == sequenceLength*2){
+								if(!newData.equals("") && binaryString.length() == sequenceLength*2){
 									addSequenceToBTree(binaryString);
 								}
 							}
 						}
-					}
 				}
 				
 			}
@@ -133,6 +131,8 @@ public class GeneBankCreateBTree
 			System.out.println (e.getMessage());
 			e.printStackTrace();
 		}
+		geneBankTree.writeMetaData();
+		geneBankTree.writeCacheToFile();
 	}
 	
 	public static void dumpText()
@@ -153,7 +153,7 @@ public class GeneBankCreateBTree
 		else if(c == 'g' || c == 'G'){
 			return "10";
 		}
-		return null;
+		return "";
 	}
 
 	//needs more work
@@ -164,6 +164,7 @@ public class GeneBankCreateBTree
 		//converts binary string to a long
 		char[] data = sequence.toCharArray();
 		int exp = 0;
+		
 		for(int i = data.length - 1; i >= 0; i--){
 			if(data[i] == '1'){
 				key = (long) (key + Math.pow(2, exp));
