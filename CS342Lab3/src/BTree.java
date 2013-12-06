@@ -3,6 +3,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class BTree {
 	private int sequenceLength;
 	
 	//Constructor
-	BTree(int maxNumOfObjects, int cacheSize, File binFile, int seqLength) throws IOException{
+	public BTree(int maxNumOfObjects, int cacheSize, File binFile, int seqLength) throws IOException{
 		if (cacheSize != 0){
 			hasCache = true;
 			//create cache object
@@ -43,6 +44,63 @@ public class BTree {
 		this.clearFile();
 		this.writeMetaData();
 		writeNode(rootNode);
+	}
+	
+	//constructor used for searching a binary file
+	public BTree(int cacheSize, File binFile) throws IOException{
+		if (cacheSize != 0){
+			hasCache = true;
+			//create cache object
+			bTreeCache = new Cache<BTreeNode>(cacheSize);
+		}
+		else{
+			hasCache = false;
+		}
+		this.binFile = binFile;
+		RandomAccessFile data = new RandomAccessFile(this.binFile, "rw");
+		data.seek(0);
+		this.rootPointer = data.readInt();
+		this.numOfNodes = data.readInt();
+		this.maxNumOfObjs = data.readInt();
+		this.nodeSize = data.readInt();
+		this.sequenceLength = data.readInt();
+		data.close();
+		//TODO throw error if sequence lengths don't match
+		rootNode = this.retrieveNode(rootPointer);
+		
+	}
+	
+	public BTreeObject find(BTreeObject obj) throws IOException{
+		currNode = rootNode;
+		
+		int index = currNode.findObjIndex(obj);
+		if(!currNode.isEmpty()){
+			//check if equal, and inc freq. then return
+			BTreeObject tempObject;
+			if(currNode.getNumOfObj() != index){
+				tempObject = currNode.getObject(index);
+				if(obj.compareTo(tempObject) == 0){
+					return tempObject;
+				}
+			}
+			while(currNode.hasChildren()){
+				//parentNode = currNode;
+				currNode = retrieveNode(currNode.getChildPointer(index));
+				
+				index = currNode.findObjIndex(obj);
+				//check if equal, and inc freq. then return
+				if(currNode.getNumOfObj() != index){
+					tempObject = currNode.getObject(index);
+					if(obj.compareTo(tempObject) == 0){
+						return tempObject;
+					}
+				}
+			}
+		}
+		else{
+			//there is something wrong
+		}
+		return null;	//object was not found
 	}
 	
 	public void add(BTreeObject obj) throws IOException{
