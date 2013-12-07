@@ -80,7 +80,8 @@ public class GeneBankCreateBTree
 	public static void buildTree() throws IOException
 	{
 		int maxObjects = (2 * degree) - 1;
-		String binaryFile = "/home/students/bcapener/"+inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
+		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
+		//String binaryFile = "/home/students/bcapener/"+inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
 		File binFile = new File(binaryFile);
 		
 		geneBankTree = new BTree(maxObjects, cacheSize, binFile, sequenceLength);
@@ -106,24 +107,27 @@ public class GeneBankCreateBTree
 				while(tokenizer.hasMoreTokens()){
 					String s = tokenizer.nextToken();
 					//toggles weather its currently in a sequence to parses data and create objects
-					if(s.equals("ORIGIN"))searchingSequence = true;
+					if(s.equals("ORIGIN")){
+						searchingSequence = true;
+						binaryString = "";
+					}
 					if(s.equals("//"))searchingSequence = false;
-						//where it parses the 4 different DNA types to add objects o tree
-						if(searchingSequence && !s.equals("ORIGIN")){
-							char[] data = s.toCharArray();
-							//checks characters of each token
-							for(int i = 0; i < data.length; i++){
-								String newData = convertCharacterToBinary(data[i]);
-								binaryString = binaryString + newData;
-								if(binaryString.length() > sequenceLength*2){
-									binaryString = binaryString.substring(2);
-								}
-								//adds object to tree if sequence changed and sequence is right length
-								if(!newData.equals("") && binaryString.length() == sequenceLength*2){
-									addSequenceToBTree(binaryString);
-								}
+					//where it parses the 4 different DNA types to add objects o tree
+					if(searchingSequence && !s.equals("ORIGIN")){
+						char[] data = s.toCharArray();
+						//checks characters of each token
+						for(int i = 0; i < data.length; i++){
+							String newData = convertCharacterToBinary(data[i]);
+							binaryString = binaryString + newData;
+							if(binaryString.length() > sequenceLength*2){
+								binaryString = binaryString.substring(2);
+							}
+							//adds object to tree if sequence changed and sequence is right length
+							if(!newData.equals("") && binaryString.length() == sequenceLength*2){
+								addSequenceToBTree(binaryString);
 							}
 						}
+					}
 				}
 				
 			}
