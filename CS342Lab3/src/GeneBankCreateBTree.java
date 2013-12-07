@@ -6,7 +6,7 @@ public class GeneBankCreateBTree
 	static BTree geneBankTree;
 	static boolean useCache = false;
 	static Integer degree;
-	static File inputFile;
+	static File inputFile, dumpFile;
 	static Integer sequenceLength; //vla
 	static int cacheSize = 0;
 	static int debugLevel;
@@ -55,7 +55,15 @@ public class GeneBankCreateBTree
 		
 		buildTree();
 		
-		if (debugLevel == 1) dumpText();
+		if (debugLevel == 1){
+			//creates dump file
+			File dir = new File("tmp/test");
+			dir.mkdirs();
+			dumpFile = new File(dir, "dump.txt");
+			dumpFile.createNewFile();
+			
+			dumpText(geneBankTree.getRootPointer());
+		}
 		
 	}
 	
@@ -145,8 +153,53 @@ public class GeneBankCreateBTree
 		geneBankTree.writeCacheToFile();
 	}
 	
-	public static void dumpText()
+	public static void dumpText(int currPointer)
 	{
+		if(currPointer < 0) return;
+		BTreeNode curr;
+		try {
+			curr = geneBankTree.retrieveNode(currPointer);
+		}
+		//bubbles up to the parent if it retruns without a recursive call
+		catch (IOException e) {
+			return;
+		}
+		
+		//recursively finds next smallest node/object
+		for (int i = 0; i < curr.getNumOfObj(); ++i)
+	    {
+			if(i < curr.getNumOfChildPointers()/2){
+				dumpText(curr.getLeftChildPointers()[i]);
+			}
+			else if(i < curr.getNumOfChildPointers()){
+				dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
+			}
+			
+			//do stuff with the object here
+			BTreeObject obj = curr.getObject(i);
+			System.out.println("" + obj.getFreqCount() + " " + obj.getKey());
+			
+			BufferedWriter writer = null;
+			try {
+				writer = new BufferedWriter(new FileWriter(dumpFile));
+				writer.newLine();
+				writer.write("" + obj.getFreqCount() + " " + obj.getKey());
+			} 
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finally{
+				try {
+	                // Close the writer regardless of what happens...
+					writer.close();
+	            } catch (Exception e) {
+	            }
+			}
+	        
+	    }
+		//this is here so that it will search the node in the last child pointer
+		dumpText(curr.getRightChildPointers()[curr.getRightChildPointers().length -1]);
 		
 	}
 	
