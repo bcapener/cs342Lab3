@@ -77,6 +77,7 @@ public class GeneBankSearch
 			while((line  = reader.readLine()) != null){
 				char[] data = line.toCharArray();
 				Integer sequenceLength = data.length;
+				binaryString = "";
 				//checks characters of each token
 				for(int i = 0; i < data.length; i++){
 					String newData = convertCharacterToBinary(data[i]);

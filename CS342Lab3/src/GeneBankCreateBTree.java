@@ -118,7 +118,13 @@ public class GeneBankCreateBTree
 						//checks characters of each token
 						for(int i = 0; i < data.length; i++){
 							String newData = convertCharacterToBinary(data[i]);
-							binaryString = binaryString + newData;
+							//when newData is n, clear binaryString
+							if(newData.equals("n")){
+								binaryString = "";
+							}
+							else{
+								binaryString = binaryString + newData;
+							}
 							if(binaryString.length() > sequenceLength*2){
 								binaryString = binaryString.substring(2);
 							}
@@ -156,6 +162,9 @@ public class GeneBankCreateBTree
 		}
 		else if(c == 'g' || c == 'G'){
 			return "10";
+		}
+		else if(c == 'n' || c == 'N'){
+			return "n";
 		}
 		return "";
 	}
