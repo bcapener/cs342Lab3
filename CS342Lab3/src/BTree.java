@@ -185,7 +185,7 @@ public class BTree {
 		}
 	}
 	
-	private BTreeNode retrieveNode(int pointer) throws IOException{
+	public BTreeNode retrieveNode(int pointer) throws IOException{
 		if(hasCache){
 			BTreeNode retNode;
 			retNode = bTreeCache.getObject(pointer);			//look for node in cache first
@@ -269,5 +269,9 @@ public class BTree {
 			}
 			
 		}
+	}
+	
+	public int getRootPointer(){
+		return rootPointer;
 	}
 }
