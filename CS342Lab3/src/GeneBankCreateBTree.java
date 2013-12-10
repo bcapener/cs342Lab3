@@ -34,7 +34,6 @@ public class GeneBankCreateBTree
 		if (args[1].equals("0"))
 		{
 			degree = findDegree();
-			System.out.println(degree);
 		}
 		else 
 		{
@@ -68,7 +67,10 @@ public class GeneBankCreateBTree
 			File dir = new File("tmp/test");
 			dir.mkdirs();
 			dumpFile = new File(dir, "dump.txt");
-			dumpFile.createNewFile();
+			if(!dumpFile.createNewFile()){
+				dumpFile.delete();
+				dumpFile.createNewFile();
+			}
 
 			dumpText(geneBankTree.getRootPointer());
 		}
@@ -178,7 +180,7 @@ public class GeneBankCreateBTree
 	 */
 	public static void dumpText(int currPointer)
 	{
-		if(currPointer < 0) return;
+		if(currPointer < 20) return;	//20 is where the meta-data ends
 		BTreeNode curr;
 		try {
 			curr = geneBankTree.retrieveNode(currPointer);
@@ -188,11 +190,6 @@ public class GeneBankCreateBTree
 		catch (IOException e) {
 			return;
 		}
-
-		int objNum = curr.getNumOfObj();
-		System.out.println(objNum);
-		System.out.println(curr.getNumOfChildPointers());
-
 
 		//recursively finds next smallest node/object
 		for (int i = 0; i < curr.getNumOfObj(); i++)
@@ -217,20 +214,16 @@ public class GeneBankCreateBTree
 
 			BufferedWriter writer = null;
 			try {
-				writer = new BufferedWriter(new FileWriter(dumpFile));
+				String str = "" + obj.getFreqCount() + " " + getSequence(obj.getKey());
+				writer = new BufferedWriter(new FileWriter(dumpFile, true));
+				writer.write(str, 0, str.length());
 				writer.newLine();
-				writer.write("" + obj.getFreqCount() + " " + getSequence(obj.getKey()));
+				writer.close();
+				
 			} 
 			catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			finally{
-				try {
-					// Close the writer regardless of what happens...
-					writer.close();
-				} catch (Exception e) {
-				}
 			}
 
 		}
@@ -294,7 +287,6 @@ public class GeneBankCreateBTree
 		}
 		String sequence = "";
 		int sequenceLength = binarySequence.length()/2; 
-		System.out.println(sequenceLength);
 		for(int i = 0; i < sequenceLength; i++){
 			String temp = binarySequence.substring(i*2,i*2 + 2);
 			if(temp.equals("00")){
