@@ -1,13 +1,20 @@
 import java.io.*;
 import java.util.StringTokenizer;
 
+/**
+ * @author Brandon Capener
+ * @author Tina Crimps
+ * @author Daniel Delagarza
+ *
+ * Creates a BTree based on a GeneBank (.gbk) input file
+ */
 public class GeneBankCreateBTree
 {
 	static BTree geneBankTree;
 	static boolean useCache = false;
 	static Integer degree;
 	static File inputFile, dumpFile;
-	static Integer sequenceLength; //vla
+	static Integer sequenceLength; 
 	static int cacheSize = 0;
 	static int debugLevel;
 	static final int METADATASIZE = 64;
@@ -67,6 +74,10 @@ public class GeneBankCreateBTree
 		
 	}
 	
+	/**
+	 * Presents standard argument formatting when command line
+	 * does not contain correct parameters 
+	 */
 	public static void argumentFormat()
 	{
 		System.out.println("Command line should read as follows:");
@@ -74,6 +85,10 @@ public class GeneBankCreateBTree
 		System.out.println("[<cache size>] [<debug level>");
 	}
 	
+	/**
+	 * Finds optimal degree for node, when degree not given
+	 * @return degreeValue integer value containing calculated value of degree
+	 */
 	public static int findDegree()
 	{
 		int nodeValue;
@@ -84,7 +99,10 @@ public class GeneBankCreateBTree
 		
 		return degreeValue;
 	}
-	
+	/**
+	 * Builds BTree based on input file
+	 * @throws IOException
+	 */
 	public static void buildTree() throws IOException
 	{
 		int maxObjects = (2 * degree) - 1;
@@ -153,6 +171,10 @@ public class GeneBankCreateBTree
 		geneBankTree.writeCacheToFile();
 	}
 	
+	/**
+	 * Writes a text file containing the frequency of a given DNA string
+	 * @param currPointer an integer value containing the current pointer
+	 */
 	public static void dumpText(int currPointer)
 	{
 		if(currPointer < 0) return;
@@ -204,6 +226,11 @@ public class GeneBankCreateBTree
 		}		
 	}
 	
+	/**
+	 * Converts character to binary value
+	 * @param c char value to be converted
+	 * @return binary value of character passed
+	 */
 	private static String convertCharacterToBinary(char c){
 		if(c == 'a' || c == 'A'){
 			return "00";
@@ -223,7 +250,11 @@ public class GeneBankCreateBTree
 		return "";
 	}
 
-	//needs more work
+	/**
+	 * Adds a given DNA sequence to the BTree
+	 * @param sequence String sequence to be added to tree
+	 * @throws IOException
+	 */
 	private static void addSequenceToBTree(String sequence) throws IOException{
 		
 		long key = 0;
