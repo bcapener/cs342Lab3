@@ -197,17 +197,20 @@ public class GeneBankCreateBTree
 		//recursively finds next smallest node/object
 		for (int i = 0; i < curr.getNumOfObj(); ++i)
 		{
-
+			//makes sure number of pointers isnt less than 10
 			if(curr.getNumOfChildPointers() < 1){
 				
+				//gets the next left pointer
 				if(i < curr.getNumOfChildPointers()/2){
 					dumpText(curr.getLeftChildPointers()[i]);
 				}
 				
+				//gets the middle pointer
 				else if(i == curr.getNumOfChildPointers()/2){
 					dumpText(curr.getMiddleObjectIndex());
 				}
 
+				//gets the next right pointer
 				else if(i - curr.getNumOfChildPointers()/2 - 1 < curr.getRightChildPointers().length){
 					dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
 				}
