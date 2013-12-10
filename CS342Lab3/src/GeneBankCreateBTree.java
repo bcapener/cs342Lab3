@@ -20,7 +20,7 @@ public class GeneBankCreateBTree
 	static final int METADATASIZE = 64;
 	static final int POINTERSIZE = 32;
 	static final int OBJECTSIZE = 96;
-	
+
 	public static void main(String[] args) throws IOException
 	{
 		if (args.length < 4 || args.length > 6)
@@ -28,21 +28,22 @@ public class GeneBankCreateBTree
 			System.out.println("Incorrect arguments.");
 			argumentFormat();
 		}
-		
+
 		if(args[0].equals("1")) useCache = true;
-		
+
 		if (args[1].equals("0"))
 		{
 			degree = findDegree();
+			System.out.println(degree);
 		}
 		else 
 		{
 			degree = Integer.valueOf(args[1]);
 		}
-		
+
 		inputFile = new File(args[2]);
 		sequenceLength = Integer.valueOf(args[3]);
-		
+
 		if (args.length == 6)
 		{
 			cacheSize = Integer.valueOf(args[4]);
@@ -59,21 +60,21 @@ public class GeneBankCreateBTree
 				cacheSize = Integer.valueOf(args[4]);
 			}
 		}
-		
+
 		buildTree();
-		
+
 		if (debugLevel == 1){
 			//creates dump file
 			File dir = new File("tmp/test");
 			dir.mkdirs();
 			dumpFile = new File(dir, "dump.txt");
 			dumpFile.createNewFile();
-			
+
 			dumpText(geneBankTree.getRootPointer());
 		}
-		
+
 	}
-	
+
 	/**
 	 * Presents standard argument formatting when command line
 	 * does not contain correct parameters 
@@ -84,7 +85,7 @@ public class GeneBankCreateBTree
 		System.out.println("java GeneBankCreateBTree <0/1(no/with Cache) <degree> <gbk file> <sequence length>");
 		System.out.println("[<cache size>] [<debug level>");
 	}
-	
+
 	/**
 	 * Finds optimal degree for node, when degree not given
 	 * @return degreeValue integer value containing calculated value of degree
@@ -93,10 +94,10 @@ public class GeneBankCreateBTree
 	{
 		int nodeValue;
 		int degreeValue = 0;
-		
+
 		nodeValue = (OBJECTSIZE * 2) + (POINTERSIZE * 2);
 		degreeValue = (4096 - (METADATASIZE + POINTERSIZE - OBJECTSIZE))  / nodeValue;
-		
+
 		return degreeValue;
 	}
 	/**
@@ -109,9 +110,9 @@ public class GeneBankCreateBTree
 		String binaryFile = inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
 		//String binaryFile = "/home/students/bcapener/"+inputFile.getName() + ".btree.data." + Integer.toString(sequenceLength) + "." + Integer.toString(degree);
 		File binFile = new File(binaryFile);
-		
+
 		geneBankTree = new BTree(maxObjects, cacheSize, binFile, sequenceLength);
-		
+
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader (new FileReader(inputFile));
@@ -124,7 +125,7 @@ public class GeneBankCreateBTree
 		String binaryString = "";
 		StringTokenizer tokenizer;
 		boolean searchingSequence = false;
-		
+
 		//loops through lines and tokens of input file
 		try {
 			while((line  = reader.readLine()) != null){
@@ -161,7 +162,7 @@ public class GeneBankCreateBTree
 						}
 					}
 				}
-				
+
 			}
 		} catch (IOException e) {
 			System.out.println (e.getMessage());
@@ -170,7 +171,7 @@ public class GeneBankCreateBTree
 		geneBankTree.writeMetaData();
 		geneBankTree.writeCacheToFile();
 	}
-	
+
 	/**
 	 * Writes a text file containing the frequency of a given DNA string
 	 * @param currPointer an integer value containing the current pointer
@@ -181,29 +182,41 @@ public class GeneBankCreateBTree
 		BTreeNode curr;
 		try {
 			curr = geneBankTree.retrieveNode(currPointer);
+			if(curr.equals(null)) return;
 		}
 		//bubbles up to the parent if it retruns without a recursive call
 		catch (IOException e) {
 			return;
 		}
-		
+
+		int objNum = curr.getNumOfObj();
+		System.out.println(objNum);
+		System.out.println(curr.getNumOfChildPointers());
+
+
 		//recursively finds next smallest node/object
 		for (int i = 0; i < curr.getNumOfObj(); ++i)
-	    {
-			if(i < (curr.getNumOfChildPointers() - 1)/2){
-				dumpText(curr.getLeftChildPointers()[i]);
+		{
+
+			if(curr.getNumOfChildPointers() < 1){
+				
+				if(i < curr.getNumOfChildPointers()/2){
+					dumpText(curr.getLeftChildPointers()[i]);
+				}
+				
+				else if(i == curr.getNumOfChildPointers()/2){
+					dumpText(curr.getMiddleObjectIndex());
+				}
+
+				else if(i - curr.getNumOfChildPointers()/2 - 1 < curr.getRightChildPointers().length){
+					dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
+				}
 			}
-			else if(i == curr.getNumOfChildPointers()/2){
-				dumpText(curr.getMiddleObjectIndex());
-			}
-			else if(i - curr.getNumOfChildPointers()/2 - 1 < curr.getRightChildPointers().length){
-				dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
-			}
-			
+
 			//do stuff with the object here
 			BTreeObject obj = curr.getObject(i);
 			System.out.println("" + obj.getFreqCount() + " " + obj.getKey());
-			
+
 			BufferedWriter writer = null;
 			try {
 				writer = new BufferedWriter(new FileWriter(dumpFile));
@@ -216,19 +229,19 @@ public class GeneBankCreateBTree
 			}
 			finally{
 				try {
-	                // Close the writer regardless of what happens...
+					// Close the writer regardless of what happens...
 					writer.close();
-	            } catch (Exception e) {
-	            }
+				} catch (Exception e) {
+				}
 			}
-	        
-	    }
+
+		}
 		//this is here so that it will search the node in the last child pointer
-		if(curr.getNumOfChildPointers() > curr.getNumOfObj()){
+		if(curr.getNumOfChildPointers()/2 > curr.getNumOfObj()){
 			dumpText(curr.getRightChildPointers()[curr.getRightChildPointers().length -1]);
 		}		
 	}
-	
+
 	/**
 	 * Converts character to binary value
 	 * @param c char value to be converted
@@ -259,13 +272,13 @@ public class GeneBankCreateBTree
 	 * @throws IOException
 	 */
 	private static void addSequenceToBTree(String sequence) throws IOException{
-		
+
 		long key = 0;
-		
+
 		//converts binary string to a long
 		char[] data = sequence.toCharArray();
 		int exp = 0;
-		
+
 		for(int i = data.length - 1; i >= 0; i--){
 			if(data[i] == '1'){
 				key = (long) (key + Math.pow(2, exp));
