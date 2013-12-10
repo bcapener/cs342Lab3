@@ -1,0 +1,42 @@
+CS 342 Lab 3
+
+Authors:
+Brandon Capener
+Tina Crimps
+Daniel De la Garza
+
+Node Design:
+-----------------------------------------------------
+|           |         |                |            |
+| Metadata  | Objects | Child Pointers | Parent Ptr |
+|           |         |                |            |
+-----------------------------------------------------
+Node metadata
+Number of objects 
+Number of child pointers
+
+
+
+Cache impacts on performance:
+
+Creating BTree
+==============
+Input file: Test5.gbk
+Sequence: 7
+
+No cache - 32 minutes
+Cache 100 - 27 minutes
+Cache 500 7 minutes
+(All results timed manually)
+
+Search BTree
+============
+Input file: Test5.gbk.btree.data.7.16
+Query: 7
+
+No cache - 7 seconds
+Cache 100 - 2 seconds
+Cache 500 - 1 second
+(All results timed manually)
+
+
