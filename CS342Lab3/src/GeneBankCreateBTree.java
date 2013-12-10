@@ -178,7 +178,7 @@ public class GeneBankCreateBTree
 	 */
 	public static void dumpText(int currPointer)
 	{
-		if(currPointer < 0) return;
+		if(currPointer < 20) return;	//20 is where the meta-data ends
 		BTreeNode curr;
 		try {
 			curr = geneBankTree.retrieveNode(currPointer);
