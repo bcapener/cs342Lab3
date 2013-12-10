@@ -3,6 +3,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * @author Brandon Capener
+ * @author Tina Crimps
+ * @author Daniel Delagarza
+ * 
+ * Searches a BTree based on a given query file
+ */
 public class GeneBankSearch
 {
 	static boolean useCache = false;
@@ -52,6 +59,10 @@ public class GeneBankSearch
 		
 	}
 	
+	/**
+	 * Presents standard argument formatting when command line
+	 * does not contain correct parameters 
+	 */
 	public static void argumentFormat()
 	{
 		System.out.println("Command line should read as follows:");
@@ -59,6 +70,10 @@ public class GeneBankSearch
 		System.out.println("[<cache size>] [<debug level>");
 	}
 	
+	/**
+	 * Searches tree based on query
+	 * @throws IOException
+	 */
 	public static void searchTree() throws IOException
 	{
 		//need to add
@@ -105,6 +120,11 @@ public class GeneBankSearch
 		}
 	}
 	
+	/**
+	 * Converts character to binary value
+	 * @param c char value to be converted
+	 * @return binary value of character passed
+	 */	
 	private static String convertCharacterToBinary(char c){
 		if(c == 'a' || c == 'A'){
 			return "00";
@@ -121,6 +141,12 @@ public class GeneBankSearch
 		return null;
 	}
 	
+	/**
+	 * Locates sequence
+	 * @param sequence String sequence to be found
+	 * @param line String line on which sequence is located
+	 * @throws IOException
+	 */
 	private static void findSequence(String sequence, String line) throws IOException{
 		
 		long key = 0;
