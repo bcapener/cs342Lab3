@@ -168,11 +168,11 @@ public class GeneBankCreateBTree
 		//recursively finds next smallest node/object
 		for (int i = 0; i < curr.getNumOfObj(); ++i)
 	    {
-			if(i < curr.getRightChildPointers().length){
+			if(i < curr.getLeftChildPointers().length){
 				dumpText(curr.getLeftChildPointers()[i]);
 			}
-			else if(i - curr.getRightChildPointers().length < curr.getLeftChildPointers().length){
-				dumpText(curr.getRightChildPointers()[i - curr.getRightChildPointers().length]);
+			else if(i - curr.getLeftChildPointers().length < curr.getRightChildPointers().length){
+				dumpText(curr.getRightChildPointers()[i - curr.getLeftChildPointers().length]);
 			}
 			
 			//do stuff with the object here
