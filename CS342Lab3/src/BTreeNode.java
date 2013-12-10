@@ -87,6 +87,11 @@ public class BTreeNode {
 		return treeObjects.get(index);
 	}
 	
+	public int getMiddleObjectIndex(){
+		//returns the middle object index.
+		return(int) Math.floor(treeObjects.size()/2);
+	}
+	
 	public ArrayList<BTreeObject> getRightObjects(){
 		//returns the objects to the right of middle object
 		ArrayList<BTreeObject> tempA = new ArrayList<BTreeObject>();
