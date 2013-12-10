@@ -195,36 +195,31 @@ public class GeneBankCreateBTree
 
 
 		//recursively finds next smallest node/object
-		for (int i = 0; i < curr.getNumOfObj(); ++i)
+		for (int i = 0; i < curr.getNumOfObj(); i++)
 		{
-			//makes sure number of pointers isnt less than 10
-			if(curr.getNumOfChildPointers() < 1){
+			//makes sure number of pointers isnt less than 0
+			if(!(curr.getNumOfChildPointers() < 1)){
 				
 				//gets the next left pointer
 				if(i < curr.getNumOfChildPointers()/2){
 					dumpText(curr.getLeftChildPointers()[i]);
 				}
-				
-				//gets the middle pointer
-				else if(i == curr.getNumOfChildPointers()/2){
-					dumpText(curr.getMiddleObjectIndex());
-				}
 
 				//gets the next right pointer
-				else if(i - curr.getNumOfChildPointers()/2 - 1 < curr.getRightChildPointers().length){
+				else if(i - curr.getNumOfChildPointers()/2 < curr.getRightChildPointers().length){
 					dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
 				}
 			}
 
 			//do stuff with the object here
 			BTreeObject obj = curr.getObject(i);
-			System.out.println("" + obj.getFreqCount() + " " + obj.getKey());
+			System.out.println("" + obj.getFreqCount() + " " + getSequence(obj.getKey()));
 
 			BufferedWriter writer = null;
 			try {
 				writer = new BufferedWriter(new FileWriter(dumpFile));
 				writer.newLine();
-				writer.write("" + obj.getFreqCount() + " " + obj.getKey());
+				writer.write("" + obj.getFreqCount() + " " + getSequence(obj.getKey()));
 			} 
 			catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -290,5 +285,31 @@ public class GeneBankCreateBTree
 		}
 		BTreeObject object = new BTreeObject(key);	
 		geneBankTree.add(object);
+	}
+	private static String getSequence(Long key){
+		String binarySequence = Long.toBinaryString(key);
+		int sequenceDifference = sequenceLength*2 - binarySequence.length();
+		for(int i = 0; i < sequenceDifference; i ++){
+			binarySequence = "0" + binarySequence;
+		}
+		String sequence = "";
+		int sequenceLength = binarySequence.length()/2; 
+		System.out.println(sequenceLength);
+		for(int i = 0; i < sequenceLength; i++){
+			String temp = binarySequence.substring(i*2,i*2 + 2);
+			if(temp.equals("00")){
+				sequence = sequence + "a";
+			}
+			else if(temp.equals("11")){
+				sequence = sequence + "t";
+			}
+			else if(temp.equals("01")){
+				sequence = sequence + "c";
+			}
+			else if(temp.equals("10")){
+				sequence = sequence + "g";
+			}
+		}
+		return sequence;
 	}
 }
