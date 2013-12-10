@@ -168,11 +168,11 @@ public class GeneBankCreateBTree
 		//recursively finds next smallest node/object
 		for (int i = 0; i < curr.getNumOfObj(); ++i)
 	    {
-			if(i < curr.getNumOfChildPointers()/2){
+			if(i < curr.getRightChildPointers().length){
 				dumpText(curr.getLeftChildPointers()[i]);
 			}
-			else if(i < curr.getNumOfChildPointers()){
-				dumpText(curr.getRightChildPointers()[i - curr.getNumOfChildPointers()/2]);
+			else if(i - curr.getRightChildPointers().length < curr.getLeftChildPointers().length){
+				dumpText(curr.getRightChildPointers()[i - curr.getRightChildPointers().length]);
 			}
 			
 			//do stuff with the object here
@@ -199,8 +199,9 @@ public class GeneBankCreateBTree
 	        
 	    }
 		//this is here so that it will search the node in the last child pointer
-		dumpText(curr.getRightChildPointers()[curr.getRightChildPointers().length -1]);
-		
+		if(curr.getNumOfChildPointers() > curr.getNumOfObj()){
+			dumpText(curr.getRightChildPointers()[curr.getRightChildPointers().length -1]);
+		}		
 	}
 	
 	private static String convertCharacterToBinary(char c){
